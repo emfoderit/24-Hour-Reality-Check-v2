@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24-Hour Reality Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #fff8f0 0%, #ffeedd 100%); min-height: 100vh; padding: 20px 16px 40px; }
+
+.container { max-width: 700px; margin: 0 auto; }
+
+/* HEADER */
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 { font-size: 26px; font-weight: 900; color: #e85d04; margin-bottom: 4px; }
+.header p { font-size: 13px; color: #bbb; }
+
+/* PROGRESS */
+.progress-wrap { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 28px; }
+.step-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.step-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; border: 3px solid #f0d5c8; color: #f0d5c8; background: #fff; transition: all 0.3s; }
+.step-circle.active { border-color: #e85d04; color: #fff; background: #e85d04; }
+.step-circle.done { border-color: #1DD1A1; color: #fff; background: #1DD1A1; }
+.step-label { font-size: 11px; font-weight: 700; color: #ccc; transition: color 0.3s; white-space: nowrap; }
+.step-label.active { color: #e85d04; }
+.step-label.done { color: #1DD1A1; }
+.step-line { width: 60px; height: 3px; background: #f0d5c8; margin-bottom: 18px; transition: background 0.3s; }
+.step-line.done { background: #1DD1A1; }
+
+/* CARD */
+.card { background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 4px 24px rgba(232,93,4,0.09); margin-bottom: 16px; }
+.card-title { font-size: 18px; font-weight: 800; color: #333; margin-bottom: 6px; }
+.card-sub { font-size: 13px; color: #bbb; margin-bottom: 20px; }
+.highlight { color: #e85d04; background: #fff3ee; padding: 2px 8px; border-radius: 6px; }
+
+/* AKTIVITAS CHIPS */
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 700; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; color: #fff; opacity: 0.7; }
+.chip:hover { opacity: 1; transform: translateY(-1px); }
+.chip.selected { opacity: 1; border-color: #333; transform: scale(1.05); }
+.lainnya-input { width: 100%; padding: 10px 14px; border: 2px solid #f0f0f0; border-radius: 12px; font-size: 14px; font-family: 'Nunito', sans-serif; outline: none; margin-top: 8px; transition: border 0.2s; display: none; }
+.lainnya-input:focus { border-color: #e85d04; }
+
+/* JAM INPUT */
+.jam-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+.jam-box { flex: 1; }
+.jam-box label { font-size: 11px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+.jam-input { width: 100%; padding: 12px 14px; border: 2px solid #f0f0f0; border-radius: 12px; font-size: 20px; font-weight: 800; font-family: 'Nunito', sans-serif; text-align: center; outline: none; transition: border 0.2s; color: #333; letter-spacing: 2px; }
+.jam-input:focus { border-color: #e85d04; }
+.jam-arrow { font-size: 20px; color: #ddd; margin-top: 20px; }
+
+/* SLOT LIST */
+.slot-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; background: #f9f9f9; }
+.slot-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.slot-label { flex: 1; font-size: 13px; font-weight: 700; color: #444; }
+.slot-time { font-size: 12px; color: #bbb; }
+.slot-del { background: none; border: none; color: #ddd; cursor: pointer; font-size: 16px; font-family: 'Nunito', sans-serif; transition: color 0.15s; }
+.slot-del:hover { color: #e85d04; }
+
+/* BUTTONS */
+.btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, #e85d04, #f4a261); color: #fff; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-top: 8px; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-secondary { width: 100%; padding: 12px; background: #fff; color: #e85d04; border: 2.5px solid #f4a261; border-radius: 14px; font-size: 15px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.btn-secondary:hover { background: #fff8f2; }
+.btn-add { padding: 10px 18px; background: #fff3ee; color: #e85d04; border: 2px dashed #f4a261; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+.btn-add:hover { background: #ffe8d6; }
+
+.err { color: #e85d04; font-size: 12px; margin-top: 8px; background: #fff3ee; padding: 8px 12px; border-radius: 10px; display: none; }
+
+/* CLOCK */
+.clock-container { display: flex; justify-content: center; margin: 16px 0; }
+canvas.clock { border-radius: 50%; }
+
+/* COMPARISON */
+.compare-wrap { display: flex; gap: 16px; flex-wrap: wrap; }
+.compare-side { flex: 1; min-width: 220px; }
+.compare-title { font-size: 14px; font-weight: 800; text-align: center; margin-bottom: 12px; padding: 8px; border-radius: 10px; }
+.compare-title.harapan { background: #e8f5e9; color: #2e7d32; }
+.compare-title.realita { background: #fce4ec; color: #c62828; }
+
+/* SCORE */
+.score-wrap { text-align: center; padding: 20px; background: linear-gradient(135deg, #fff3ee, #ffeedd); border-radius: 20px; margin: 16px 0; }
+.score-number { font-size: 56px; font-weight: 900; color: #e85d04; line-height: 1; }
+.score-label { font-size: 14px; color: #bbb; font-weight: 700; margin-top: 4px; }
+.score-msg { font-size: 14px; color: #666; margin-top: 12px; font-weight: 600; }
+
+.diff-legend { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.diff-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; font-weight: 600; }
+.diff-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* SECTION DIVIDER */
+.section-label { font-size: 11px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; }
+
+.btn-undo { padding: 6px 12px; background: #fff8f0; color: #e85d04; border: 1.5px solid #f4a261; border-radius: 8px; font-size: 12px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: background 0.2s; }
+.btn-undo:hover { background: #ffe8d6; }
+.btn-reset { padding: 6px 12px; background: #fff0f0; color: #FF6B6B; border: 1.5px solid #FF6B6B; border-radius: 8px; font-size: 12px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: background 0.2s; }
+.btn-reset:hover { background: #ffe0e0; }
+
+@media (max-width: 500px) {
+  .compare-wrap { flex-direction: column; }
+  .step-line { width: 32px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⏰ 24-Hour Reality Check</h1>
+    <p>Bandingkan harapan dan realita penggunaan waktumu!</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="step-item">
+      <div class="step-circle active" id="sc1">1</div>
+      <div class="step-label active" id="sl1">Harapan</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc2">2</div>
+      <div class="step-label" id="sl2">Realita</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc3">3</div>
+      <div class="step-label" id="sl3">Perbandingan</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 & 2: FORM -->
+  <div id="formStep">
+    <div class="card">
+      <div class="card-title" id="formTitle">🌟 Harapan Penggunaan Waktu</div>
+      <div class="card-sub" id="formSub">Idealnya, <span class="highlight" id="formHighlight">bagaimana kamu INGIN menggunakan waktumu?</span></div>
+
+      <div class="section-label">Pilih Aktivitas</div>
+      <div class="chips-wrap" id="chipsWrap"></div>
+      <input type="text" class="lainnya-input" id="lainnyaInput" placeholder="Tulis aktivitas lainnya..." maxlength="20" />
+
+      <div class="section-label">Waktu</div>
+      <div class="jam-row">
+        <div class="jam-box">
+          <label>Mulai</label>
+          <input type="text" class="jam-input" id="jamMulai" placeholder="00:00" maxlength="5" />
+        </div>
+        <div class="jam-arrow">→</div>
+        <div class="jam-box">
+          <label>Selesai</label>
+          <input type="text" class="jam-input" id="jamSelesai" placeholder="23:59" maxlength="5" />
+        </div>
+      </div>
+      <p class="err" id="errMsg"></p>
+      <button class="btn-add" onclick="addSlot()">+ Tambah Slot Waktu</button>
+    </div>
+
+    <div class="card" id="slotCard" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="section-label" style="margin:0;">Slot yang sudah diisi</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-undo" onclick="undoSlot()">↩ Undo</button>
+          <button class="btn-reset" onclick="resetSlots()">✕ Reset</button>
+        </div>
+      </div>
+      <div id="slotList"></div>
+      <canvas id="clockPreview" class="clock" width="260" height="260" style="display:block;margin:16px auto 0;"></canvas>
+    </div>
+
+    <button class="btn-primary" onclick="nextStep()" id="nextBtn">Lanjut →</button>
+    <button class="btn-secondary" onclick="prevStep()" id="backBtn" style="display:none;">← Kembali</button>
+  </div>
+
+  <!-- STEP 3: COMPARISON -->
+  <div id="compareStep" style="display:none;">
+    <div class="card">
+      <div class="card-title">📊 Harapan vs Realita</div>
+      <div class="card-sub">Seberapa mirip rencanamu dengan kenyataannya?</div>
+
+      <div class="score-wrap">
+        <div class="score-number" id="scoreNum">0%</div>
+        <div class="score-label">Kemiripan Harapan & Realita</div>
+        <div class="score-msg" id="scoreMsg"></div>
+      </div>
+
+
+      <div class="compare-wrap" style="margin-top:20px;">
+        <div class="compare-side">
+          <div class="compare-title harapan">🌟 Harapan</div>
+          <div class="clock-container"><canvas id="clockHarapan" class="clock" width="240" height="240"></canvas></div>
+        </div>
+        <div class="compare-side">
+          <div class="compare-title realita">📍 Realita</div>
+          <div class="clock-container"><canvas id="clockRealita" class="clock" width="240" height="240"></canvas></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;" id="legendCompare"></div>
+    </div>
+    <button class="btn-secondary" onclick="goBack3()">← Kembali ke Realita</button>
+    <button class="btn-reset" style="width:100%;padding:12px;border-radius:14px;font-size:15px;margin-top:8px;" onclick="mulaiUlang()">↺ Mulai Ulang</button>
+  </div>
+</div>
+
+<script>
+const AKTIVITAS = [
+  { label: 'Tidur', color: '#5F27CD' },
+  { label: 'Makan', color: '#FF9F43' },
+  { label: 'Bersih-bersih', color: '#48DBFB' },
+  { label: 'Kuliah', color: '#1DD1A1' },
+  { label: 'Belajar Mandiri', color: '#00D2D3' },
+  { label: 'Mengerjakan Tugas', color: '#54A0FF' },
+  { label: 'Menonton Film', color: '#F368E0' },
+  { label: 'Bermain Sosial Media', color: '#FF6B6B' },
+  { label: 'Olahraga', color: '#FECA57' },
+  { label: 'Rapat Organisasi', color: '#10AC84' },
+  { label: 'Lainnya', color: '#C8D6E5' },
+];
+
+let currentStep = 1;
+let selectedChip = null;
+let harapanSlots = [];
+let realitaSlots = [];
+let harapanHistory = [];
+let realitaHistory = [];
+
+function getSlots() { return currentStep === 1 ? harapanSlots : realitaSlots; }
+function getHistory() { return currentStep === 1 ? harapanHistory : realitaHistory; }
+
+function undoSlot() {
+  const slots = getSlots();
+  const history = getHistory();
+  if (slots.length === 0) return;
+  history.push(slots.pop());
+  renderSlots();
+}
+
+function resetSlots() {
+  const slots = getSlots();
+  const history = getHistory();
+  if (slots.length === 0) return;
+  if (confirm('Reset semua slot waktu di langkah ini?')) {
+    while (slots.length) history.push(slots.pop());
+    renderSlots();
+  }
+}
+
+// Build chips
+const chipsWrap = document.getElementById('chipsWrap');
+AKTIVITAS.forEach((a, i) => {
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.style.background = a.color;
+  chip.textContent = a.label;
+  chip.dataset.idx = i;
+  chip.onclick = () => selectChip(i);
+  chipsWrap.appendChild(chip);
+});
+
+function selectChip(i) {
+  selectedChip = i;
+  document.querySelectorAll('.chip').forEach((c, j) => c.classList.toggle('selected', j === i));
+  const lainnyaInput = document.getElementById('lainnyaInput');
+  lainnyaInput.style.display = i === AKTIVITAS.length - 1 ? 'block' : 'none';
+  if (i !== AKTIVITAS.length - 1) lainnyaInput.value = '';
+}
+
+// Time input formatting
+function setupTimeInput(id) {
+  const input = document.getElementById(id);
+  input.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2,4);
+    this.value = v;
+  });
+  input.addEventListener('blur', function() {
+    let v = this.value.replace(/\D/g,'');
+    if (v.length === 4) {
+      let h = parseInt(v.slice(0,2)), m = parseInt(v.slice(2,4));
+      if (h > 23) h = 23;
+      if (m > 59) m = 59;
+      this.value = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+  });
+}
+setupTimeInput('jamMulai');
+setupTimeInput('jamSelesai');
+
+function timeToMin(t) {
+  const p = t.split(':');
+  return parseInt(p[0]) * 60 + parseInt(p[1]);
+}
+
+function minToTime(m) {
+  const h = Math.floor(m / 60) % 24;
+  const min = m % 60;
+  return String(h).padStart(2,'0') + ':' + String(min).padStart(2,'0');
+}
+
+function getMinuteArray(start, end) {
+  // Returns array of minutes occupied by this slot
+  const arr = new Array(1440).fill(false);
+  if (end > start) {
+    for (let m = start; m < end; m++) arr[m] = true;
+  } else {
+    // crosses midnight
+    for (let m = start; m < 1440; m++) arr[m] = true;
+    for (let m = 0; m < end; m++) arr[m] = true;
+  }
+  return arr;
+}
+
+function slotsOverlap(slots, newStart, newEnd) {
+  const newArr = getMinuteArray(newStart, newEnd);
+  for (const s of slots) {
+    const existArr = getMinuteArray(s.start, s.end);
+    for (let m = 0; m < 1440; m++) {
+      if (newArr[m] && existArr[m]) return true;
+    }
+  }
+  return false;
+}
+
+function addSlot() {
+  const err = document.getElementById('errMsg');
+  err.style.display = 'none';
+  if (selectedChip === null) { showErr('Pilih aktivitas terlebih dahulu!'); return; }
+  const mulai = document.getElementById('jamMulai').value;
+  const selesai = document.getElementById('jamSelesai').value;
+  if (!mulai || mulai.length < 5) { showErr('Isi jam mulai dengan benar! (contoh: 09:00)'); return; }
+  if (!selesai || selesai.length < 5) { showErr('Isi jam selesai dengan benar! (contoh: 17:00)'); return; }
+  const sMin = timeToMin(mulai), eMin = timeToMin(selesai);
+  if (sMin === eMin) { showErr('Jam mulai dan selesai tidak boleh sama!'); return; }
+  let label = AKTIVITAS[selectedChip].label;
+  if (selectedChip === AKTIVITAS.length - 1) {
+    const lainnya = document.getElementById('lainnyaInput').value.trim();
+    if (!lainnya) { showErr('Tulis nama aktivitas lainnya!'); return; }
+    label = lainnya;
+  }
+  const slots = getSlots();
+  if (slotsOverlap(slots, sMin, eMin)) { showErr('Waktu bertabrakan dengan slot yang sudah ada!'); return; }
+  slots.push({ label, color: AKTIVITAS[selectedChip].color, start: sMin, end: eMin, mulai, selesai });
+  slots.sort((a,b) => a.start - b.start);
+  document.getElementById('jamMulai').value = '';
+  document.getElementById('jamSelesai').value = '';
+  selectedChip = null;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('lainnyaInput').style.display = 'none';
+  renderSlots();
+}
+
+function showErr(msg) {
+  const err = document.getElementById('errMsg');
+  err.textContent = '⚠️ ' + msg;
+  err.style.display = 'block';
+}
+
+function deleteSlot(i) {
+  getSlots().splice(i, 1);
+  renderSlots();
+}
+
+function renderSlots() {
+  const slots = getSlots();
+  const slotCard = document.getElementById('slotCard');
+  const slotList = document.getElementById('slotList');
+  slotCard.style.display = slots.length ? 'block' : 'none';
+  slotList.innerHTML = slots.map((s, i) => `
+    <div class="slot-item">
+      <div class="slot-dot" style="background:${s.color}"></div>
+      <span class="slot-label">${s.label}</span>
+      <span class="slot-time">${s.mulai} – ${s.selesai}</span>
+      <button class="slot-del" onclick="deleteSlot(${i})">✕</button>
+    </div>`).join('');
+  drawClock('clockPreview', slots, 260, false);
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    if (harapanSlots.length === 0) { showErr('Tambahkan minimal satu slot waktu!'); return; }
+    currentStep = 2;
+    updateUI();
+  } else if (currentStep === 2) {
+    if (realitaSlots.length === 0) { showErr('Tambahkan minimal satu slot waktu!'); return; }
+    currentStep = 3;
+    showComparison();
+  }
+}
+
+function prevStep() {
+  if (currentStep === 2) { currentStep = 1; updateUI(); }
+}
+
+function goBack3() { currentStep = 2; updateUI(); document.getElementById('formStep').style.display = 'block'; document.getElementById('compareStep').style.display = 'none'; }
+
+function mulaiUlang() {
+  if (confirm('Mulai ulang dari awal? Semua data akan dihapus.')) {
+    harapanSlots = []; realitaSlots = [];
+    harapanHistory = []; realitaHistory = [];
+    currentStep = 1;
+    document.getElementById('compareStep').style.display = 'none';
+    document.getElementById('formStep').style.display = 'block';
+    updateUI();
+  }
+}
+
+function updateUI() {
+  const isH = currentStep === 1;
+  document.getElementById('formTitle').textContent = isH ? '🌟 Harapan Penggunaan Waktu' : '📍 Realita Penggunaan Waktu';
+  document.getElementById('formSub').innerHTML = isH
+    ? 'Idealnya, <span class="highlight">bagaimana kamu INGIN menggunakan waktumu?</span>'
+    : 'Jujurlah, <span class="highlight" style="background:#fce4ec;color:#c62828">bagaimana kamu BENAR-BENAR menggunakan waktumu?</span>';
+  document.getElementById('backBtn').style.display = isH ? 'none' : 'block';
+  document.getElementById('nextBtn').textContent = currentStep === 2 ? 'Lihat Perbandingan →' : 'Lanjut →';
+  document.getElementById('errMsg').style.display = 'none';
+  document.getElementById('jamMulai').value = '';
+  document.getElementById('jamSelesai').value = '';
+  selectedChip = null;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('lainnyaInput').style.display = 'none';
+
+  // progress
+  ['sc1','sc2','sc3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    const lbl = document.getElementById('sl'+(i+1));
+    el.className = 'step-circle';
+    lbl.className = 'step-label';
+    if (i+1 < currentStep) { el.classList.add('done'); lbl.classList.add('done'); el.textContent = '✓'; }
+    else if (i+1 === currentStep) { el.classList.add('active'); lbl.classList.add('active'); el.textContent = i+1; }
+    else { el.textContent = i+1; }
+  });
+  document.getElementById('line1').className = 'step-line' + (currentStep > 1 ? ' done' : '');
+  document.getElementById('line2').className = 'step-line' + (currentStep > 2 ? ' done' : '');
+
+  renderSlots();
+}
+
+function drawClock(canvasId, slots, size, showDiff, slots2) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = size/2, cy = size/2, r = size*0.38, inner = size*0.18;
+  ctx.clearRect(0,0,size,size);
+
+  const TOTAL = 1440;
+
+  // background
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.fillStyle = '#f5f5f5';
+  ctx.fill();
+
+  if (showDiff && slots2) {
+    // Build minute arrays
+    const arr1 = new Array(TOTAL).fill(null);
+    const arr2 = new Array(TOTAL).fill(null);
+    slots.forEach(s => { let st=s.start,en=s.end; if(en<st){for(let m=st;m<1440;m++)arr1[m]=s.color;for(let m=0;m<en;m++)arr1[m]=s.color;}else{for(let m=st;m<en;m++)arr1[m]=s.color;} });
+    slots2.forEach(s => { let st=s.start,en=s.end; if(en<st){for(let m=st;m<1440;m++)arr2[m]=s.color;for(let m=0;m<en;m++)arr2[m]=s.color;}else{for(let m=st;m<en;m++)arr2[m]=s.color;} });
+    // draw minute by minute
+    for(let m=0;m<TOTAL;m++){
+      const a1 = -Math.PI/2+(m/TOTAL)*2*Math.PI;
+      const a2 = -Math.PI/2+((m+1)/TOTAL)*2*Math.PI;
+      let color;
+      if(!arr1[m] && !arr2[m]) color='#f0f0f0';
+      else if(arr1[m]===arr2[m]) color='#1DD1A1';
+      else color='#FF6B6B';
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();
+      ctx.fillStyle=color;ctx.fill();
+    }
+  } else {
+    slots.forEach(s => {
+      let st=s.start, en=s.end;
+      const a1 = -Math.PI/2+(st/TOTAL)*2*Math.PI;
+      const a2 = en>st ? -Math.PI/2+(en/TOTAL)*2*Math.PI : -Math.PI/2+2*Math.PI+(en/TOTAL)*2*Math.PI;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();
+      ctx.fillStyle=s.color;ctx.fill();
+    });
+    ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  }
+
+  // inner circle
+  ctx.beginPath();ctx.arc(cx,cy,inner,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();
+
+  // tick marks & labels
+  for(let h=0;h<24;h++){
+    const angle=-Math.PI/2+(h/24)*2*Math.PI;
+    const isMaj=h%6===0, isMed=h%3===0;
+    const r1=r+2, r2=r+(isMaj?10:isMed?7:4);
+    ctx.beginPath();
+    ctx.moveTo(cx+r1*Math.cos(angle),cy+r1*Math.sin(angle));
+    ctx.lineTo(cx+r2*Math.cos(angle),cy+r2*Math.sin(angle));
+    ctx.strokeStyle=isMaj?'#999':'#ccc';ctx.lineWidth=isMaj?2:1;ctx.stroke();
+    if(isMaj){
+      const lx=cx+(r+18)*Math.cos(angle), ly=cy+(r+18)*Math.sin(angle);
+      ctx.fillStyle='#999';ctx.font='bold '+(size*0.042)+'px Nunito';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(h===0?'00':h,lx,ly);
+    }
+  }
+
+  // center text
+  ctx.fillStyle='#e85d04';ctx.font='bold '+(size*0.07)+'px Nunito';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('24 Jam',cx,cy-size*0.025);
+  ctx.fillStyle='#bbb';ctx.font=(size*0.048)+'px Nunito';
+  ctx.fillText('Harimu',cx,cy+size*0.04);
+}
+
+function calcScore() {
+  const TOTAL = 1440;
+  const arr1 = new Array(TOTAL).fill(null);
+  const arr2 = new Array(TOTAL).fill(null);
+  harapanSlots.forEach(s => { let st=s.start,en=s.end; if(en<st){for(let m=st;m<1440;m++)arr1[m]=s.label;for(let m=0;m<en;m++)arr1[m]=s.label;}else{for(let m=st;m<en;m++)arr1[m]=s.label;} });
+  realitaSlots.forEach(s => { let st=s.start,en=s.end; if(en<st){for(let m=st;m<1440;m++)arr2[m]=s.label;for(let m=0;m<en;m++)arr2[m]=s.label;}else{for(let m=st;m<en;m++)arr2[m]=s.label;} });
+  let match=0, totalFilled=0;
+  for(let m=0;m<TOTAL;m++) {
+    if(arr1[m]!==null || arr2[m]!==null) totalFilled++;
+    if(arr1[m]!==null && arr1[m]===arr2[m]) match++;
+  }
+  if(totalFilled===0) return 0;
+  return Math.round(match/totalFilled*100);
+}
+
+function showComparison() {
+  document.getElementById('formStep').style.display = 'none';
+  document.getElementById('compareStep').style.display = 'block';
+
+  // progress
+  ['sc1','sc2'].forEach((id,i)=>{ const el=document.getElementById(id); el.className='step-circle done'; el.textContent='✓'; document.getElementById('sl'+(i+1)).className='step-label done'; });
+  document.getElementById('sc3').className='step-circle active';
+  document.getElementById('sl3').className='step-label active';
+  document.getElementById('line1').className='step-line done';
+  document.getElementById('line2').className='step-line done';
+
+  const score = calcScore();
+  document.getElementById('scoreNum').textContent = score + '%';
+  let msg = '';
+  if(score>=80) msg='Luar biasa! Kamu sangat konsisten dengan rencanamu 🎉';
+  else if(score>=60) msg='Cukup baik! Ada beberapa hal yang perlu diperbaiki 💪';
+  else if(score>=40) msg='Masih banyak perbedaan. Yuk refleksikan bersama! 🤔';
+  else msg='Perbedaannya cukup besar. Saatnya refleksi dan evaluasi diri! 🌱';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  drawClock('clockHarapan', harapanSlots, 240, false);
+  drawClock('clockRealita', realitaSlots, 240, false);
+
+  // legend
+  const allLabels = [...new Map([...harapanSlots,...realitaSlots].map(s=>[s.label,s])).values()];
+  document.getElementById('legendCompare').innerHTML = '<div style="font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Keterangan Warna</div>' +
+    allLabels.map(s=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;color:#555;font-weight:600;"><div style="width:12px;height:12px;border-radius:4px;background:${s.color};flex-shrink:0;"></div>${s.label}</div>`).join('');
+}
+
+// init
+updateUI();
+</script>
+</body>
+</html>
